@@ -8,16 +8,20 @@ Owner and Scheduler are regular classes (they have more behavior).
 """
 
 from dataclasses import dataclass, field
+from datetime import date, timedelta
 
 
 @dataclass
 class Task:
-    """A single care task for a pet (e.g. "Walk", "Feed")."""
+    """A single pet care task."""
 
     title: str
-    frequency: str          # how often, e.g. "daily", "weekly"
-    duration: int           # how long the task takes, in minutes
-    priority: int           # ranking value (1 = most important)
+    frequency: str
+    duration: int
+    priority: int
+    time: str = "09:00"
+    pet_name: str = ""
+    due_date: date = field(default_factory=date.today)
     completed: bool = False
 
     def mark_done(self) -> None:
@@ -27,7 +31,7 @@ class Task:
 
 @dataclass
 class Pet:
-    """A pet that belongs to an owner and has care tasks."""
+    """A pet that has care tasks."""
 
     name: str
     species: str
@@ -35,72 +39,103 @@ class Pet:
     tasks: list = field(default_factory=list)
 
     def add_task(self, task: Task) -> None:
-        """Add a task to this pet's task list."""
+        """Add a task to this pet."""
+        task.pet_name = self.name
         self.tasks.append(task)
 
 
 class Owner:
-    """A pet owner who can have one or more pets."""
+    """A pet owner with one or more pets."""
 
     def __init__(self, name: str, email: str) -> None:
         self.name = name
         self.email = email
-        self.pets: list = []
+        self.pets = []
 
     def add_pet(self, pet: Pet) -> None:
-        """Add a pet to this owner's list of pets."""
+        """Add a pet to the owner."""
         self.pets.append(pet)
 
     def list_pets(self) -> list:
-        """Return the owner's pets."""
+        """Return all pets."""
         return self.pets
 
     def get_all_tasks(self) -> list:
-        """Collect and return the tasks from every pet the owner has."""
+        """Return all tasks from all pets."""
         all_tasks = []
         for pet in self.pets:
-            # Add each pet's tasks to the combined list.
-            for task in pet.tasks:
-                all_tasks.append(task)
+            all_tasks.extend(pet.tasks)
         return all_tasks
 
 
 class Scheduler:
-    """Collects and organizes tasks across all pets."""
+    """Organizes pet care tasks."""
 
     def __init__(self) -> None:
-        self.all_tasks: list = []
+        self.all_tasks = []
 
     def add_task(self, task: Task) -> None:
         """Add a task to the scheduler."""
         self.all_tasks.append(task)
 
     def get_due_tasks(self) -> list:
-        """Return the tasks that still need to be done (not completed yet)."""
-        due = []
-        for task in self.all_tasks:
-            if not task.completed:
-                due.append(task)
-        return due
+        """Return unfinished tasks."""
+        return [task for task in self.all_tasks if not task.completed]
 
     def sort_by_priority(self) -> list:
-        """Return all tasks sorted by priority (1 = most important first)."""
-        # sorted() does not change the original list; it returns a new one.
+        """Sort tasks by priority."""
         return sorted(self.all_tasks, key=lambda task: task.priority)
 
-    def sort_by_frequency(self) -> list:
-        """Return all tasks sorted alphabetically by how often they occur."""
-        return sorted(self.all_tasks, key=lambda task: task.frequency)
+    def sort_by_time(self) -> list:
+        """Sort tasks by time in HH:MM format."""
+        return sorted(self.all_tasks, key=lambda task: task.time)
+
+    def filter_by_status(self, completed: bool) -> list:
+        """Filter tasks by completion status."""
+        return [task for task in self.all_tasks if task.completed == completed]
+
+    def filter_by_pet(self, pet_name: str) -> list:
+        """Filter tasks by pet name."""
+        return [task for task in self.all_tasks if task.pet_name == pet_name]
+
+    def mark_task_complete(self, task: Task) -> Task | None:
+        """Complete a task and create the next recurring task if needed."""
+        task.mark_done()
+
+        if task.frequency == "daily":
+            next_date = task.due_date + timedelta(days=1)
+        elif task.frequency == "weekly":
+            next_date = task.due_date + timedelta(weeks=1)
+        else:
+            return None
+
+        new_task = Task(
+            task.title,
+            task.frequency,
+            task.duration,
+            task.priority,
+            task.time,
+            task.pet_name,
+            next_date,
+        )
+        self.add_task(new_task)
+        return new_task
+
+    def detect_conflicts(self) -> list:
+        """Detect tasks scheduled at the same time."""
+        warnings = []
+        seen = {}
+
+        for task in self.all_tasks:
+            if task.time in seen:
+                warnings.append(
+                    f"Conflict: '{task.title}' and '{seen[task.time]}' are both scheduled at {task.time}."
+                )
+            else:
+                seen[task.time] = task.title
+
+        return warnings
 
     def generate_daily_plan(self) -> list:
-        """Build an ordered plan of the tasks still due, most important first.
-
-        Steps:
-            1. Keep only the tasks that are not completed yet.
-            2. Sort those tasks by priority (1 = most important).
-        """
-        # 1. Start from the tasks that still need doing.
-        due_tasks = self.get_due_tasks()
-        # 2. Order them so the most important task comes first.
-        daily_plan = sorted(due_tasks, key=lambda task: task.priority)
-        return daily_plan
+        """Generate today's plan sorted by time."""
+        return self.sort_by_time()
