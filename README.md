@@ -67,9 +67,20 @@ pytest --cov
 ```
 
 Sample test output:
+============================= test session starts =============================
+platform win32 -- Python 3.13.14, pytest-9.1.1
+collected 5 items
 
 ```
 # Paste your pytest output here
+============================== 5 passed in 0.07s ==============================
+The test suite verifies:
+
+- Task completion
+- Adding tasks to a pet
+- Sorting tasks by time
+- Recurring daily task creation
+- Conflict detection for duplicate task times
 ```
 
 ## 📐 Smarter Scheduling
