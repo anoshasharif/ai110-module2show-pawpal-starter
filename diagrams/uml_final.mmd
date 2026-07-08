@@ -1,0 +1,48 @@
+classDiagram
+    class Owner {
+        +str name
+        +str email
+        +list pets
+        +add_pet(pet) None
+        +list_pets() list
+        +get_all_tasks() list
+    }
+
+    class Pet {
+        <<dataclass>>
+        +str name
+        +str species
+        +int age
+        +list tasks
+        +add_task(task) None
+    }
+
+    class Task {
+        <<dataclass>>
+        +str title
+        +str frequency
+        +int duration
+        +int priority
+        +str time
+        +str pet_name
+        +date due_date
+        +bool completed
+        +mark_done() None
+    }
+
+    class Scheduler {
+        +list all_tasks
+        +add_task(task) None
+        +get_due_tasks() list
+        +sort_by_priority() list
+        +sort_by_time() list
+        +filter_by_status(completed) list
+        +filter_by_pet(pet_name) list
+        +mark_task_complete(task) Task
+        +detect_conflicts() list
+        +generate_daily_plan() list
+    }
+
+    Owner "1" --> "*" Pet : has pets
+    Pet "1" --> "*" Task : has tasks
+    Scheduler "1" --> "*" Task : organizes

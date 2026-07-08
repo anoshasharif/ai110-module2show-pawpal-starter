@@ -98,10 +98,30 @@ The test suite verifies:
 
 Describe your app in numbered steps so a reader can follow along without watching a video:
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
+1. The user enters owner information.
+2. The user adds a pet with a name, species, and age.
+3. The user adds care tasks with a title, frequency, duration, priority, and time.
+4. The app displays the current task list in a table.
+5. When the user clicks **Generate schedule**, the scheduler sorts tasks by time and displays the daily plan.
+6. If two tasks happen at the same time, the app shows a warning message.
+
+Sample CLI output from `python main.py`:
+
+```text
+Today's Schedule:
+- 08:00 | Biscuit: Morning feeding (10 min, priority 1)
+- 08:00 | Mochi: Clean litter box (15 min, priority 2)
+- 14:00 | Mochi: Brush fur (20 min, priority 3)
+- 18:00 | Biscuit: Evening walk (30 min, priority 2)
+
+Conflict Warnings:
+Conflict: 'Clean litter box' and 'Morning feeding' are both scheduled at 08:00.
+
+Tasks for Biscuit:
+- Evening walk
+- Morning feeding
+
+Marking first task complete and creating next recurring task:
+Created next task: Evening walk due on 2026-07-08
 
 **Screenshot or video** *(optional)*: <!-- Insert a screenshot or link to a demo video here -->

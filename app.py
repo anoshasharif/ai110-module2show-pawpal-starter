@@ -95,10 +95,25 @@ if st.button("Generate schedule"):
         scheduler.add_task(task)
 
     plan = scheduler.generate_daily_plan()
+    conflicts = scheduler.detect_conflicts()
+
+    if conflicts:
+        for warning in conflicts:
+            st.warning(warning)
 
     if plan:
-        st.write("Today's Schedule:")
-        for i, task in enumerate(plan, start=1):
-            st.write(f"{i}. {task.title} - {task.duration} min - priority {task.priority}")
+        st.success("Schedule generated!")
+        rows = []
+        for task in plan:
+            rows.append({
+                "Time": task.time,
+                "Pet": task.pet_name,
+                "Task": task.title,
+                "Duration": task.duration,
+                "Priority": task.priority,
+                "Due Date": task.due_date,
+                "Completed": task.completed
+            })
+        st.table(rows)
     else:
         st.info("No tasks to schedule.")
