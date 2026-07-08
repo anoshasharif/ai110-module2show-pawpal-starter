@@ -33,6 +33,8 @@ The three main actions users should be able to perform are:
 - Describe one tradeoff your scheduler makes.
 - Why is that tradeoff reasonable for this scenario?
 
+My scheduler only checks if two tasks have the exact same start time. It does not check whether tasks overlap based on their duration. This keeps the algorithm simple but may miss some scheduling conflicts.
+
 ---
 
 ## 3. AI Collaboration
